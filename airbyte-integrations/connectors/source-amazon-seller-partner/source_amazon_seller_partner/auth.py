@@ -7,16 +7,15 @@ import hmac
 import urllib.parse
 from typing import Any, Mapping
 from urllib.parse import urlparse
-import boto3
 from uuid import uuid4
 
-from boto3 import Session
-from botocore.credentials import RefreshableCredentials
-from botocore.session import get_session
-
+import boto3
 import pendulum
 import requests
 from airbyte_cdk.sources.streams.http.auth import Oauth2Authenticator
+from boto3 import Session
+from botocore.credentials import RefreshableCredentials
+from botocore.session import get_session
 from requests.auth import AuthBase
 
 
@@ -47,13 +46,13 @@ class RefreshableBotoSession:
     """
 
     def __init__(
-            self,
-            region_name: str = None,
-            aws_access_key_id: str = None,
-            aws_secret_access_key: str = None,
-            sts_arn: str = None,
-            session_name: str = None,
-            session_ttl: int = 3000
+        self,
+        region_name: str = None,
+        aws_access_key_id: str = None,
+        aws_secret_access_key: str = None,
+        sts_arn: str = None,
+        session_name: str = None,
+        session_ttl: int = 3000,
     ):
         """
         Initialize `RefreshableBotoSession`
@@ -139,13 +138,20 @@ class RefreshableBotoSession:
 class AWSSignature(AuthBase):
     """Source from https://github.com/saleweaver/python-amazon-sp-api/blob/master/sp_api/base/aws_sig_v4.py"""
 
-    def __init__(self, service: str,
-                 aws_access_key_id: str, aws_secret_access_key: str, region: str, aws_session_token: str = None, role_arn: str = None):
+    def __init__(
+        self,
+        service: str,
+        aws_access_key_id: str,
+        aws_secret_access_key: str,
+        region: str,
+        aws_session_token: str = None,
+        role_arn: str = None,
+    ):
         self.service = service
-        if self.role_arn:
-            self.refreshable_credentials = RefreshableBotoSession(region_name=region, aws_access_key_id=aws_access_key_id,
-                                                                  aws_secret_access_key=aws_secret_access_key,
-                                                                  sts_arn=role_arn).refreshable_credentials()
+        if role_arn:
+            self.refreshable_credentials = RefreshableBotoSession(
+                region_name=region, aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key, sts_arn=role_arn
+            ).refreshable_credentials()
             self.aws_access_key_id = self.refreshable_credentials.access_key
             self.aws_secret_access_key = self.refreshable_credentials.secret_key
             self.aws_session_token = self.refreshable_credentials.token

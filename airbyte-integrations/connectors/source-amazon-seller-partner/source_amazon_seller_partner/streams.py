@@ -921,7 +921,7 @@ class IncrementalAnalyticsStream(AnalyticsStream):
             )
         slices = []
         report_options = self.report_options()
-        report_period = report_options.get('reportPeriod')
+        report_period = report_options.get("reportPeriod")
         if report_period == "DAY":
             look_back_limit = end_date.subtract(days=1450)
             start_date = max(start_date, look_back_limit)
@@ -930,7 +930,7 @@ class IncrementalAnalyticsStream(AnalyticsStream):
                 if interval.days > 14:
                     slc = {
                         "dataStartTime": start_date.strftime(DATE_TIME_FORMAT),
-                        "dataEndTime": start_date.add(days=14).strftime(DATE_TIME_FORMAT)
+                        "dataEndTime": start_date.add(days=14).strftime(DATE_TIME_FORMAT),
                     }
 
                     slices.append(slc)
@@ -945,7 +945,6 @@ class IncrementalAnalyticsStream(AnalyticsStream):
                         )
                     start_date = end_date
             return slices
-
 
 
 class SellerAnalyticsSalesAndTrafficReports(IncrementalAnalyticsStream):
