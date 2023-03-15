@@ -41,7 +41,7 @@ def sts_credentials():
             "AccessKeyId": "foo",
             "SecretAccessKey": "bar",
             "SessionToken": "foobar",
-            "Expiration": datetime.datetime.now(tzlocal())
+            "Expiration": datetime.datetime.now(tzlocal()) + datetime.timedelta(hours=1)
         }
     }
 
