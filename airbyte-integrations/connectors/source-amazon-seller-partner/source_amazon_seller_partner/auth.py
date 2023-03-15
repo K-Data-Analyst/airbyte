@@ -92,20 +92,29 @@ class RefreshableBotoSession:
         #                   aws_secret_access_key=self.aws_secret_access_key)
 
         # if sts_arn is given, get credential by assuming given role
+        if self.sts_arn:
+            sts_client = boto3.client("sts", aws_access_key_id=self.aws_access_key_id, aws_secret_access_key=self.aws_secret_access_key)
+            response = sts_client.assume_role(
+                RoleArn=self.sts_arn,
+                RoleSessionName=self.session_name,
+                DurationSeconds=self.session_ttl,
+            ).get("Credentials")
 
-        sts_client = boto3.client("sts", aws_access_key_id=self.aws_access_key_id, aws_secret_access_key=self.aws_secret_access_key)
-        response = sts_client.assume_role(
-            RoleArn=self.sts_arn,
-            RoleSessionName=self.session_name,
-            DurationSeconds=self.session_ttl,
-        ).get("Credentials")
-
-        credentials = {
-            "access_key": response.get("AccessKeyId"),
-            "secret_key": response.get("SecretAccessKey"),
-            "token": response.get("SessionToken"),
-            "expiry_time": response.get("Expiration").isoformat(),
-        }
+            credentials = {
+                "access_key": response.get("AccessKeyId"),
+                "secret_key": response.get("SecretAccessKey"),
+                "token": response.get("SessionToken"),
+                "expiry_time": response.get("Expiration").isoformat(),
+            }
+        else:
+            sts_client = boto3.client("sts", aws_access_key_id=self.aws_access_key_id, aws_secret_access_key=self.aws_secret_access_key)
+            response = sts_client.get_session_token().get("Credentials")
+            credentials = {
+                "access_key": response.get("AccessKeyId"),
+                "secret_key": response.get("SecretAccessKey"),
+                "token": response.get("SessionToken"),
+                "expiry_time": response.get("Expiration").isoformat(),
+            }
         return credentials
 
     def refreshable_session(self) -> Session:
