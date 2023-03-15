@@ -142,15 +142,18 @@ class AWSSignature(AuthBase):
     def __init__(self, service: str,
                  aws_access_key_id: str, aws_secret_access_key: str, region: str, aws_session_token: str = None, role_arn: str = None):
         self.service = service
-        self.refreshable_credentials = RefreshableBotoSession(region_name=region, aws_access_key_id=aws_access_key_id,
-                                                              aws_secret_access_key=aws_secret_access_key,
-                                                              sts_arn=role_arn).refreshable_credentials()
+        if self.role_arn:
+            self.refreshable_credentials = RefreshableBotoSession(region_name=region, aws_access_key_id=aws_access_key_id,
+                                                                  aws_secret_access_key=aws_secret_access_key,
+                                                                  sts_arn=role_arn).refreshable_credentials()
+            self.aws_access_key_id = self.refreshable_credentials.access_key
+            self.aws_secret_access_key = self.refreshable_credentials.secret_key
+            self.aws_session_token = self.refreshable_credentials.token
+        else:
+            self.aws_access_key_id = aws_access_key_id
+            self.aws_secret_access_key = aws_secret_access_key
+            self.aws_session_token = aws_session_token
 
-        self.aws_access_key_id = self.refreshable_credentials.access_key
-        self.aws_secret_access_key = self.refreshable_credentials.secret_key
-
-        self.aws_session_token = self.refreshable_credentials.token
-        self._token = aws_session_token
         self.region = region
 
     @staticmethod
