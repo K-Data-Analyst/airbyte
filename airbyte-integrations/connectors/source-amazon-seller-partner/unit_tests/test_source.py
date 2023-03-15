@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
-
+import datetime
 from unittest.mock import MagicMock
 
 import pytest
@@ -40,6 +40,7 @@ def sts_credentials():
             "AccessKeyId": "foo",
             "SecretAccessKey": "bar",
             "SessionToken": "foobar",
+            "Expiration": datetime.datetime.utcnow()
         }
     }
 
