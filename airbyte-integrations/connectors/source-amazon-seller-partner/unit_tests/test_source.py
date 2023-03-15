@@ -40,7 +40,7 @@ def sts_credentials():
             "AccessKeyId": "foo",
             "SecretAccessKey": "bar",
             "SessionToken": "foobar",
-            "Expiration": datetime.datetime.utcnow()
+            "Expiration": datetime.datetime.now()
         }
     }
 
