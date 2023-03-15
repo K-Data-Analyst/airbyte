@@ -909,37 +909,43 @@ class IncrementalAnalyticsStream(AnalyticsStream):
     def stream_slices(
         self, sync_mode: SyncMode, cursor_field: List[str] = None, stream_state: Mapping[str, Any] = None
     ) -> Iterable[Optional[Mapping[str, Any]]]:
-
         start_date = pendulum.parse(self._replication_start_date)
         end_date = pendulum.now().subtract(days=self.availability_sla_days)
-
         if self._replication_end_date:
             end_date = pendulum.parse(self._replication_end_date)
-
         if stream_state:
-            state = stream_state.get(self.cursor_field)
-            start_date = pendulum.parse(state)
-
-        start_date = min(start_date, end_date)
-        slices = []
-
-        while start_date < end_date:
-            # If request only returns data on day level
-            if self.fixed_period_in_days != 0:
-                slice_range = self.fixed_period_in_days
-            else:
-                slice_range = self.period_in_days
-
-            end_date_slice = start_date.add(days=slice_range)
-            slices.append(
-                {
-                    "dataStartTime": start_date.strftime(DATE_TIME_FORMAT),
-                    "dataEndTime": min(end_date_slice.subtract(seconds=1), end_date).strftime(DATE_TIME_FORMAT),
-                }
+            start_date = (
+                pendulum.parse(stream_state.get(self.cursor_field)).add(days=1)
+                if stream_state and self.cursor_field in stream_state
+                else self._replication_start_date
             )
-            start_date = end_date_slice
+        slices = []
+        report_options = self.report_options()
+        report_period = report_options.get('reportPeriod')
+        if report_period == "DAY":
+            look_back_limit = end_date.subtract(days=1450)
+            start_date = max(start_date, look_back_limit)
+            while start_date < end_date:
+                interval = end_date - start_date
+                if interval.days > 14:
+                    slc = {
+                        "dataStartTime": start_date.strftime(DATE_TIME_FORMAT),
+                        "dataEndTime": start_date.add(days=14).strftime(DATE_TIME_FORMAT)
+                    }
 
-        return slices
+                    slices.append(slc)
+                    start_date = start_date.add(days=15)
+                else:
+                    for report_date in interval:
+                        slices.append(
+                            {
+                                "dataStartTime": report_date.strftime(DATE_TIME_FORMAT),
+                                "dataEndTime": report_date.strftime(DATE_TIME_FORMAT),
+                            }
+                        )
+                    start_date = end_date
+            return slices
+
 
 
 class SellerAnalyticsSalesAndTrafficReports(IncrementalAnalyticsStream):
@@ -957,6 +963,7 @@ class VendorSalesReports(IncrementalAnalyticsStream):
     name = "GET_VENDOR_SALES_REPORT"
     result_key = "salesByAsin"
     cursor_field = "endDate"
+    fixed_period_in_days = 1
     availability_sla_days = 4  # Data is only available after 4 days
 
 

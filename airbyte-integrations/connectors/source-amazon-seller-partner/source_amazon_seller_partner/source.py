@@ -70,13 +70,15 @@ class SourceAmazonSellerPartner(AbstractSource):
     def _get_stream_kwargs(self, config: AmazonSellerPartnerConfig) -> Mapping[str, Any]:
         endpoint, marketplace_id, region = get_marketplaces(config.aws_environment)[config.region]
 
-        sts_credentials = self.get_sts_credentials(config)
-        role_creds = sts_credentials["Credentials"]
+        # sts_credentials = self.get_sts_credentials(config)
+        # role_creds = sts_credentials["Credentials"]
+        # role_arn = config.role_arn
+        # print(config)
         aws_signature = AWSSignature(
             service="execute-api",
-            aws_access_key_id=role_creds.get("AccessKeyId"),
-            aws_secret_access_key=role_creds.get("SecretAccessKey"),
-            aws_session_token=role_creds.get("SessionToken"),
+            aws_access_key_id=config.aws_access_key,
+            aws_secret_access_key=config.aws_secret_key,
+            role_arn=config.role_arn,
             region=region,
         )
         auth = AWSAuthenticator(
