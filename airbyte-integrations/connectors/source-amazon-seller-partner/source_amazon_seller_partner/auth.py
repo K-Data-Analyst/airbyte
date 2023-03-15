@@ -9,8 +9,6 @@ from typing import Any, Mapping
 from urllib.parse import urlparse
 import boto3
 from uuid import uuid4
-from datetime import datetime
-from time import time
 
 from boto3 import Session
 from botocore.credentials import RefreshableCredentials
