@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 import datetime
+from dateutil.tz import tzlocal
 from unittest.mock import MagicMock
 
 import pytest
@@ -40,7 +41,7 @@ def sts_credentials():
             "AccessKeyId": "foo",
             "SecretAccessKey": "bar",
             "SessionToken": "foobar",
-            "Expiration": datetime.datetime.now()
+            "Expiration": datetime.datetime.now(tzlocal())
         }
     }
 
