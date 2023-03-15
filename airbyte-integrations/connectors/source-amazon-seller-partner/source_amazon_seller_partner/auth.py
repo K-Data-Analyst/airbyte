@@ -99,7 +99,7 @@ class RefreshableBotoSession:
                 RoleSessionName=self.session_name,
                 DurationSeconds=self.session_ttl,
             ).get("Credentials")
-
+            print(response)
             credentials = {
                 "access_key": response.get("AccessKeyId"),
                 "secret_key": response.get("SecretAccessKey"),
