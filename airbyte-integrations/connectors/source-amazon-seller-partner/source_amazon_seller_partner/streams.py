@@ -685,14 +685,6 @@ class BrandAnalyticsItemComparisonReports(AnalyticsStream):
     result_key = "dataByAsin"
 
 
-class VendorInventoryReports(AnalyticsStream):
-    """
-    Field definitions: https://developer-docs.amazon.com/sp-api/docs/report-type-values#vendor-retail-analytics-reports
-    """
-
-    name = "GET_VENDOR_INVENTORY_REPORT"
-    result_key = "inventoryByAsin"
-    availability_sla_days = 3
 
 
 class IncrementalReportsAmazonSPStream(ReportsAmazonSPStream):
@@ -962,8 +954,16 @@ class VendorSalesReports(IncrementalAnalyticsStream):
     name = "GET_VENDOR_SALES_REPORT"
     result_key = "salesByAsin"
     cursor_field = "endDate"
-    fixed_period_in_days = 1
     availability_sla_days = 4  # Data is only available after 4 days
+
+class VendorInventoryReports(IncrementalAnalyticsStream):
+    """
+    Field definitions: https://developer-docs.amazon.com/sp-api/docs/report-type-values#vendor-retail-analytics-reports
+    """
+
+    name = "GET_VENDOR_INVENTORY_REPORT"
+    result_key = "inventoryByAsin"
+    availability_sla_days = 3
 
 
 class VendorDirectFulfillmentShipping(AmazonSPStream):
