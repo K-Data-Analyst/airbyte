@@ -960,9 +960,9 @@ class VendorInventoryReports(IncrementalAnalyticsStream):
     """
     Field definitions: https://developer-docs.amazon.com/sp-api/docs/report-type-values#vendor-retail-analytics-reports
     """
-
     name = "GET_VENDOR_INVENTORY_REPORT"
     result_key = "inventoryByAsin"
+    cursor_field = "endDate"
     availability_sla_days = 3
 
 
