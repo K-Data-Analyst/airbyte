@@ -160,15 +160,34 @@ class AWSSignature(AuthBase):
             self.refreshable_credentials = RefreshableBotoSession(
                 region_name=region, aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key, sts_arn=role_arn
             ).refreshable_credentials()
-            self.aws_access_key_id = self.refreshable_credentials.access_key
-            self.aws_secret_access_key = self.refreshable_credentials.secret_key
-            self.aws_session_token = self.refreshable_credentials.token
         else:
-            self.aws_access_key_id = aws_access_key_id
-            self.aws_secret_access_key = aws_secret_access_key
-            self.aws_session_token = aws_session_token
+            self.refreshable_credentials = None
+            self._aws_access_key_id = aws_access_key_id
+            self._aws_secret_access_key = aws_secret_access_key
+            self._aws_session_token = aws_session_token
 
         self.region = region
+
+    @property
+    def aws_access_key_id(self):
+        if self.refreshable_credentials:
+            return self.refreshable_credentials.access_key
+        else:
+            return self._aws_access_key_id
+
+    @property
+    def aws_secret_access_key(self):
+        if self.refreshable_credentials:
+            return self.refreshable_credentials.secret_key
+        else:
+            return self._aws_secret_access_key
+
+    @property
+    def aws_session_token(self):
+        if self.refreshable_credentials:
+            return self.refreshable_credentials.token
+        else:
+            return self._aws_session_token
 
     @staticmethod
     def _sign_msg(key: bytes, msg: str) -> bytes:
